@@ -5,6 +5,9 @@ import (
 	"kli/constant"
 	"kli/core/command"
 	"kli/core/file"
+	"strings"
+
+	"errors"
 
 	"github.com/urfave/cli/v2"
 )
@@ -41,22 +44,17 @@ func (a *Action) Execute(ctx *cli.Context) error {
 }
 
 func (a *Action) Undo(ctx *cli.Context) error {
-	// switch ctx.Command.Name {
-	// case constants.FILE_COMMAND_MAKE_NAME:
-	// 	return a.delete(ctx)
-	// case constants.FILE_COMMAND_RENAME_NAME:
-	// 	return a.rename(ctx)
-	// case constants.FILE_COMMAND_DELETE_NAME:
-	// 	return a.create(ctx)
-	// }
-	return nil
+	return errors.New("Undo not implemented")
 }
 
 func (a *Action) create(ctx *cli.Context) error {
-	fileName := ctx.Args().First()
-	fmt.Println("Creating file:", fileName)
+	fileNames := make([]string, 0, ctx.Args().Len())
+	for i := range ctx.Args().Len() {
+		fileNames = append(fileNames, ctx.Args().Get(i))
+	}
+	fmt.Printf("Creating file(s): %v\n", strings.Join(fileNames, ", "))
 
-	err := file.Create(fileName)
+	err := file.Create(fileNames...)
 	if err != nil {
 		return err
 	}
@@ -65,7 +63,7 @@ func (a *Action) create(ctx *cli.Context) error {
 
 func (a *Action) rename(ctx *cli.Context) error {
 	oldName, newName := ctx.Args().Get(0), ctx.Args().Get(1)
-	fmt.Println("Renaming file:", oldName, "to", newName)
+	fmt.Printf("Renaming file: %s to %s\n", oldName, newName)
 
 	err := file.Rename(oldName, newName)
 	if err != nil {
@@ -75,10 +73,13 @@ func (a *Action) rename(ctx *cli.Context) error {
 }
 
 func (a *Action) remove(ctx *cli.Context) error {
-	fileName := ctx.Args().First()
-	fmt.Println("Removing file:", fileName)
+	fileNames := make([]string, 0, ctx.Args().Len())
+	for i := range ctx.Args().Len() {
+		fileNames = append(fileNames, ctx.Args().Get(i))
+	}
+	fmt.Printf("Removing file: %v\n", strings.Join(fileNames, ", "))
 
-	err := file.Remove(fileName)
+	err := file.Remove(fileNames...)
 	if err != nil {
 		return err
 	}

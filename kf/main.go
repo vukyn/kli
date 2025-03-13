@@ -55,6 +55,6 @@ func main() {
 	app.Commands = COMMANDS
 
 	if err := app.Run(os.Args); err != nil {
-		fmt.Printf("Error: %v\n", err)
+		fmt.Println(err)
 	}
 }
