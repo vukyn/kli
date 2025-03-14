@@ -7,15 +7,15 @@ import (
 	"path/filepath"
 )
 
-func Create(fileNames ...string) error {
-	if len(fileNames) == 0 {
+func Create(filePaths ...string) error {
+	if len(filePaths) == 0 {
 		return nil
 	}
 
 	// Create the file
-	errs := make([]error, 0, len(fileNames))
-	for _, fileName := range fileNames {
-		if err := createFile(fileName, nil); err != nil {
+	errs := make([]error, 0, len(filePaths))
+	for _, filePath := range filePaths {
+		if err := createFile(filePath, nil); err != nil {
 			errs = append(errs, err)
 			continue
 		}
@@ -24,35 +24,35 @@ func Create(fileNames ...string) error {
 	return errors.Join(errs...)
 }
 
-func Rename(oldName, newName string) error {
-	if oldName == "" || newName == "" {
+func Rename(oldPath, newPath string) error {
+	if oldPath == "" || newPath == "" {
 		return nil
 	}
 
 	// Read the old file and write it to the new file
 	// then remove the old file
-	oldFile, err := os.ReadFile(oldName)
+	oldFile, err := os.ReadFile(oldPath)
 	if err != nil {
 		return err
 	}
-	if err := createFile(newName, oldFile); err != nil {
+	if err := createFile(newPath, oldFile); err != nil {
 		return err
 	}
-	if err := removeFile(oldName); err != nil {
+	if err := removeFile(oldPath); err != nil {
 		return err
 	}
 	return nil
 }
 
-func Remove(fileNames ...string) error {
-	if len(fileNames) == 0 {
+func Remove(filePaths ...string) error {
+	if len(filePaths) == 0 {
 		return nil
 	}
 
 	// Remove the file
-	errs := make([]error, 0, len(fileNames))
-	for _, fileName := range fileNames {
-		if err := removeFile(fileName); err != nil {
+	errs := make([]error, 0, len(filePaths))
+	for _, filePath := range filePaths {
+		if err := removeFile(filePath); err != nil {
 			errs = append(errs, err)
 			continue
 		}
@@ -61,43 +61,43 @@ func Remove(fileNames ...string) error {
 	return errors.Join(errs...)
 }
 
-func createFile(fileName string, data []byte) error {
-	if fileName == "" {
+func createFile(filePath string, data []byte) error {
+	if filePath == "" {
 		return nil
 	}
 
-	dir, _ := filepath.Split(fileName)
-	if dir != "" { // File inside a directory
+	dirPath, _ := filepath.Split(filePath)
+	if dirPath != "" { // File inside a directory
 		// Create the directory if it does not exist
-		if _, err := os.Stat(dir); err != nil {
-			if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+		if _, err := os.Stat(dirPath); err != nil {
+			if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
 				return err
 			}
 		}
 	}
-	if err := os.WriteFile(fileName, data, 0644); err != nil {
+	if err := os.WriteFile(filePath, data, 0644); err != nil {
 		return err
 	}
 	return nil
 }
 
-func removeFile(fileName string) error {
-	if fileName == "" {
+func removeFile(filePath string) error {
+	if filePath == "" {
 		return nil
 	}
 
 	// Check if the file exists
-	stat, err := os.Stat(fileName)
+	stat, err := os.Stat(filePath)
 	if err != nil {
 		return err
 	}
 
 	// Check if the file is a directory
 	if stat.IsDir() {
-		return fmt.Errorf("cannot remove directory: %s", fileName)
+		return fmt.Errorf("cannot remove directory: %s", filePath)
 	}
 
-	if err := os.Remove(fileName); err != nil {
+	if err := os.Remove(filePath); err != nil {
 		return err
 	}
 	return nil

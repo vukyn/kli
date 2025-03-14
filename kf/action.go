@@ -48,13 +48,13 @@ func (a *Action) Undo(ctx *cli.Context) error {
 }
 
 func (a *Action) create(ctx *cli.Context) error {
-	fileNames := make([]string, 0, ctx.Args().Len())
+	filePaths := make([]string, 0, ctx.Args().Len())
 	for i := range ctx.Args().Len() {
-		fileNames = append(fileNames, ctx.Args().Get(i))
+		filePaths = append(filePaths, ctx.Args().Get(i))
 	}
-	fmt.Printf("Creating file(s): %v\n", strings.Join(fileNames, ", "))
+	fmt.Printf("Creating file(s): %v\n", strings.Join(filePaths, ", "))
 
-	err := file.Create(fileNames...)
+	err := file.Create(filePaths...)
 	if err != nil {
 		return err
 	}
@@ -62,10 +62,10 @@ func (a *Action) create(ctx *cli.Context) error {
 }
 
 func (a *Action) rename(ctx *cli.Context) error {
-	oldName, newName := ctx.Args().Get(0), ctx.Args().Get(1)
-	fmt.Printf("Renaming/Moving file: %s to %s\n", oldName, newName)
+	oldPath, newPath := ctx.Args().Get(0), ctx.Args().Get(1)
+	fmt.Printf("Renaming/Moving file: %s to %s\n", oldPath, newPath)
 
-	err := file.Rename(oldName, newName)
+	err := file.Rename(oldPath, newPath)
 	if err != nil {
 		return err
 	}
@@ -73,13 +73,13 @@ func (a *Action) rename(ctx *cli.Context) error {
 }
 
 func (a *Action) remove(ctx *cli.Context) error {
-	fileNames := make([]string, 0, ctx.Args().Len())
+	filePaths := make([]string, 0, ctx.Args().Len())
 	for i := range ctx.Args().Len() {
-		fileNames = append(fileNames, ctx.Args().Get(i))
+		filePaths = append(filePaths, ctx.Args().Get(i))
 	}
-	fmt.Printf("Removing file(s): %v\n", strings.Join(fileNames, ", "))
+	fmt.Printf("Removing file(s): %v\n", strings.Join(filePaths, ", "))
 
-	err := file.Remove(fileNames...)
+	err := file.Remove(filePaths...)
 	if err != nil {
 		return err
 	}
