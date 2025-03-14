@@ -1,1 +1,6 @@
 bin
+.DS_Store
+
+# testing
+test
+coverage
