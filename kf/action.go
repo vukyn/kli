@@ -63,7 +63,7 @@ func (a *Action) create(ctx *cli.Context) error {
 
 func (a *Action) rename(ctx *cli.Context) error {
 	oldName, newName := ctx.Args().Get(0), ctx.Args().Get(1)
-	fmt.Printf("Renaming file: %s to %s\n", oldName, newName)
+	fmt.Printf("Renaming/Moving file: %s to %s\n", oldName, newName)
 
 	err := file.Rename(oldName, newName)
 	if err != nil {
@@ -77,7 +77,7 @@ func (a *Action) remove(ctx *cli.Context) error {
 	for i := range ctx.Args().Len() {
 		fileNames = append(fileNames, ctx.Args().Get(i))
 	}
-	fmt.Printf("Removing file: %v\n", strings.Join(fileNames, ", "))
+	fmt.Printf("Removing file(s): %v\n", strings.Join(fileNames, ", "))
 
 	err := file.Remove(fileNames...)
 	if err != nil {

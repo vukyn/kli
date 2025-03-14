@@ -2,6 +2,7 @@ package file
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -11,19 +12,10 @@ func Create(fileNames ...string) error {
 		return nil
 	}
 
-	// Create the directory if it does not exist
+	// Create the file
 	errs := make([]error, 0, len(fileNames))
 	for _, fileName := range fileNames {
-		dir, _ := filepath.Split(fileName)
-		if dir != "" {
-			if _, err := os.Stat(dir); err != nil {
-				if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-					errs = append(errs, err)
-					continue
-				}
-			}
-		}
-		if err := os.WriteFile(fileName, []byte{}, 0644); err != nil {
+		if err := createFile(fileName, nil); err != nil {
 			errs = append(errs, err)
 			continue
 		}
@@ -43,10 +35,10 @@ func Rename(oldName, newName string) error {
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(newName, oldFile, 0644); err != nil {
+	if err := createFile(newName, oldFile); err != nil {
 		return err
 	}
-	if err := os.Remove(oldName); err != nil {
+	if err := removeFile(oldName); err != nil {
 		return err
 	}
 	return nil
@@ -60,11 +52,53 @@ func Remove(fileNames ...string) error {
 	// Remove the file
 	errs := make([]error, 0, len(fileNames))
 	for _, fileName := range fileNames {
-		if err := os.Remove(fileName); err != nil {
+		if err := removeFile(fileName); err != nil {
 			errs = append(errs, err)
 			continue
 		}
 	}
 
 	return errors.Join(errs...)
+}
+
+func createFile(fileName string, data []byte) error {
+	if fileName == "" {
+		return nil
+	}
+
+	dir, _ := filepath.Split(fileName)
+	if dir != "" { // File inside a directory
+		// Create the directory if it does not exist
+		if _, err := os.Stat(dir); err != nil {
+			if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+				return err
+			}
+		}
+	}
+	if err := os.WriteFile(fileName, data, 0644); err != nil {
+		return err
+	}
+	return nil
+}
+
+func removeFile(fileName string) error {
+	if fileName == "" {
+		return nil
+	}
+
+	// Check if the file exists
+	stat, err := os.Stat(fileName)
+	if err != nil {
+		return err
+	}
+
+	// Check if the file is a directory
+	if stat.IsDir() {
+		return fmt.Errorf("cannot remove directory: %s", fileName)
+	}
+
+	if err := os.Remove(fileName); err != nil {
+		return err
+	}
+	return nil
 }
